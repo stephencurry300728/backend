@@ -162,6 +162,15 @@ class AssessmentUploadView(APIView):
                         record_date_str = str(row.get('记录日期') or row.get('日期'))
                         # 将数据中的 20231110 转换为 2023-11-10
                         record_date = datetime.strptime(record_date_str, '%Y%m%d').date() if record_date_str else None
+                        
+                        # 在文件处理循环中
+                        assessment_result_text = row.get('考核结果')
+                        assessment_result_mapping = {
+                            '优秀': Assessment_Base.EXCELLENT,
+                            '合格': Assessment_Base.QUALIFIED,
+                            '不合格': Assessment_Base.NOT_QUALIFIED,
+                        }
+                        assessment_result = assessment_result_mapping.get(assessment_result_text, Assessment_Base.OTHER)                        
 
                         assessment_base = Assessment_Base(
                             file_name=file_name,
@@ -171,7 +180,7 @@ class AssessmentUploadView(APIView):
                             work_certificate_number=row.get('工作证编号'),
                             train_model=row.get('车型'),
                             assessment_item=row.get('考核项目'),
-                            assessment_result=row.get('考核结果'),
+                            assessment_result=assessment_result, # 使用转换后的整数值
                         )
                         assessment_base.save()
 

@@ -31,19 +31,20 @@ class Assessment_Base(models.Model):
     train_model = models.CharField(max_length=20, verbose_name="车型", null=True, blank=True)
     assessment_item = models.CharField(max_length=100, verbose_name="考核项目", null=True, blank=True)
     # 考核结果的选择字段
-    EXCELLENT = '优秀'
-    QUALIFIED = '合格'
-    NOT_QUALIFIED = '不合格'
+    EXCELLENT = 3
+    QUALIFIED = 2
+    NOT_QUALIFIED = 1
+    OTHER = 0  # 代表其他所有未知的考核结果
     ASSESSMENT_RESULTS = [
         (EXCELLENT, '优秀'),
         (QUALIFIED, '合格'),
         (NOT_QUALIFIED, '不合格'),
+        (OTHER, '其他'),  # 允许有一个“其他”选项
     ]
-    # 考核结果
-    assessment_result = models.CharField(
-        max_length=10,
+    # 考核结果现在使用IntegerField来存储
+    assessment_result = models.IntegerField(
         choices=ASSESSMENT_RESULTS,
-        # default=QUALIFIED,
+        default=OTHER,  # 默认值设置为0，对应于“其他”
         verbose_name="考核结果"
     )
 
