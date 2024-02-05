@@ -20,24 +20,6 @@ def parse_duration(time_str):
         print(f"解析错误: {e}")  # 打印解析错误
         return None  # 处理无法解析的值
 
-# 反向操作，将数据库中的DurationField字段的值转换为字符串转递给前端 
-'''
-# 这里假设 duration 是数据库中的一个DurationField字段所存储的值
-duration = timedelta(microseconds=98500000)
-formatted_str = format_duration(duration)
-print(formatted_str)  # 输出: 1:38.5
-'''
-def format_duration(duration):
-    if duration is None:
-        return None
-
-    # 将总微秒数转换为秒数
-    total_seconds = duration.total_seconds()
-    # 计算分钟和秒
-    minutes, seconds = divmod(total_seconds, 60)
-    # 格式化输出
-    return f"{int(minutes)}:{seconds:04.1f}"
-
 # 从列中获取对应的值
 def get_model_class_for_train_model(train_model):
     """
