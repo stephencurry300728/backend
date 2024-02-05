@@ -62,6 +62,8 @@ class AssessmentBaseViewSet(viewsets.ModelViewSet):
         queryset = super().get_queryset()  # 获取默认查询集
         start_date = self.request.query_params.get('start_date')
         end_date = self.request.query_params.get('end_date')
+        train_model = self.request.query_params.get('train_model')
+        assessment_item = self.request.query_params.get('assessment_item')
 
         # 根据日期范围筛选查询集
         if start_date and end_date:
@@ -70,7 +72,13 @@ class AssessmentBaseViewSet(viewsets.ModelViewSet):
             queryset = queryset.filter(record_date__gte=start_date)
         elif end_date:
             queryset = queryset.filter(record_date__lte=end_date)
-
+            
+        # 根据train_model和assessment_item过滤
+        if train_model:
+            queryset = queryset.filter(train_model=train_model)
+        if assessment_item:
+            queryset = queryset.filter(assessment_item=assessment_item)
+            
         return queryset
 
 
