@@ -4,7 +4,7 @@ from datetime import datetime
 
 import pandas as pd
 from django.db import models, transaction
-from django.db.models import Case, When, Value, IntegerField
+from rest_framework.decorators import action
 from rest_framework import status, viewsets
 from rest_framework.parsers import FormParser, MultiPartParser
 from rest_framework.filters import OrderingFilter
@@ -24,6 +24,7 @@ class StandardResultsSetPagination(PageNumberPagination):
     page_size_query_param = 'page_size'
     max_page_size = 1000
 
+# 驾驶员基本信息筛选排序视图
 class AssessmentBaseViewSet(viewsets.ModelViewSet):
     queryset = Assessment_Base.objects.all()
     serializer_class = AssessmentBaseSerializer
@@ -33,6 +34,30 @@ class AssessmentBaseViewSet(viewsets.ModelViewSet):
     # 允许排序的字段
     ordering_fields = '__all__'  # 允许按照所有字段排序，根据需要调整
     ordering = ['record_date']  # 默认按照记录日期降序排序
+    
+    # 获取所有不重复的 train_model 和 assessment_item 组合，为前端提供筛选选项
+    @action(detail=False, methods=['get'], url_path='all-train-and-assessment')
+    def all_train_and_assessment_items(self, request, *args, **kwargs):
+        # 使用 Django 的 .values() 和 .distinct() 来获取所有不重复的 train_model 和 assessment_item 组合
+        queryset = self.get_queryset().values('train_model', 'assessment_item').distinct()
+
+        # 使用 set 来存储唯一的组合
+        unique_combinations = set()
+
+        # 遍历查询集，为每个组合创建一个唯一的字符串标识符，然后添加到 set 中
+        for item in queryset:
+            combination = f"{item['train_model']}-{item['assessment_item']}"
+            unique_combinations.add(combination)
+
+        # 将 set 转换回列表形式的数据，准备返回
+        result = []
+        for combination in unique_combinations:
+            train_model, assessment_item = combination.split('-', 1)
+            result.append({"train_model": train_model, "assessment_item": assessment_item})
+
+        return Response(result)
+    
+    # 重写 get_queryset 方法，以便根据日期范围筛选查询集
     def get_queryset(self):
         queryset = super().get_queryset()  # 获取默认查询集
         start_date = self.request.query_params.get('start_date')
