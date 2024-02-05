@@ -13,6 +13,9 @@ from rest_framework.views import APIView
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework.pagination import PageNumberPagination
 from django_filters.rest_framework import DjangoFilterBackend
+from django.db.models import Q
+from functools import reduce
+import operator
 
 from .models import Assessment_Base, Assessment_09A02, Assessment_09A0304, Assessment_10A01, Assessment_10A02, NewUser
 from .serializers import Assessment09A02Serializer, Assessment09A0304Serializer, Assessment10A01Serializer, Assessment10A02Serializer, AssessmentBaseSerializer
@@ -63,27 +66,38 @@ class AssessmentBaseViewSet(viewsets.ModelViewSet):
         queryset = super().get_queryset()  # 获取默认查询集
         start_date = self.request.query_params.get('start_date')
         end_date = self.request.query_params.get('end_date')
-        train_model = self.request.query_params.get('train_model')
-        assessment_item = self.request.query_params.get('assessment_item')
+        train_model_line_param = self.request.query_params.get('train_model_line', None)
+        train_model_param = self.request.query_params.get('train_model', None)
+        assessment_item_param = self.request.query_params.get('assessment_item', None)
 
         # 根据日期范围筛选查询集
         if start_date and end_date:
-            # 如果有开始日期和结束日期，则筛选在这两个日期范围内的记录
             queryset = queryset.filter(record_date__range=[start_date, end_date])
         elif start_date:
-            # 如果只有开始日期，则筛选大于等于开始日期的记录
             queryset = queryset.filter(record_date__gte=start_date)
         elif end_date:
-            # 如果只有结束日期，则筛选小于等于结束日期的记录
             queryset = queryset.filter(record_date__lte=end_date)
-            
-        # 根据 train_model 和 assessment_item 过滤数据
-        if train_model:
-            queryset = queryset.filter(train_model=train_model)
-        if assessment_item:
-            queryset = queryset.filter(assessment_item=assessment_item)
-            
+
+        query_conditions = []
+
+        # 如果提供了 train_model_line 参数，构建一个以该参数为前缀的筛选条件
+        if train_model_line_param:
+            query_conditions.append(Q(train_model__startswith=train_model_line_param.strip('%')))
+
+        # 如果提供了 train_model 参数，构建一个精确匹配的筛选条件
+        if train_model_param:
+            query_conditions.append(Q(train_model=train_model_param))
+
+        # 如果提供了 assessment_item 参数，构建一个精确匹配的筛选条件
+        if assessment_item_param:
+            query_conditions.append(Q(assessment_item=assessment_item_param))
+
+        # 应用所有筛选条件
+        if query_conditions:
+            queryset = queryset.filter(reduce(operator.and_, query_conditions))
+
         return queryset
+
 
 # 驾驶员详细信息视图
 class Assessment09A02ViewSet(viewsets.ModelViewSet):
