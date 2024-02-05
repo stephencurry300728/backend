@@ -78,8 +78,9 @@ class AssessmentBaseViewSet(viewsets.ModelViewSet):
             queryset = queryset.filter(record_date__lte=end_date)
             
         # 根据 train_model 和 assessment_item 过滤数据
-        if train_model & assessment_item:
+        if train_model:
             queryset = queryset.filter(train_model=train_model)
+        if assessment_item:
             queryset = queryset.filter(assessment_item=assessment_item)
             
         return queryset
