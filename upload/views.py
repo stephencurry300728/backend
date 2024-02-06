@@ -1,21 +1,21 @@
 import io
+import operator
 import re
 from datetime import datetime
+from functools import reduce
 
 import pandas as pd
 from django.db import models, transaction
-from rest_framework.decorators import action
+from django.db.models import Q
+from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import status, viewsets
-from rest_framework.parsers import FormParser, MultiPartParser
+from rest_framework.decorators import action
 from rest_framework.filters import OrderingFilter
+from rest_framework.pagination import PageNumberPagination
+from rest_framework.parsers import FormParser, MultiPartParser
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework_simplejwt.tokens import RefreshToken
-from rest_framework.pagination import PageNumberPagination
-from django_filters.rest_framework import DjangoFilterBackend
-from django.db.models import Q
-from functools import reduce
-import operator
 
 from .models import Assessment_Base, Assessment_09A02, Assessment_09A0304, Assessment_10A01, Assessment_10A02, NewUser
 from .serializers import Assessment09A02Serializer, Assessment09A0304Serializer, Assessment10A01Serializer, Assessment10A02Serializer, AssessmentBaseSerializer
@@ -80,20 +80,21 @@ class AssessmentBaseViewSet(viewsets.ModelViewSet):
 
         query_conditions = []
 
-        # 如果提供了 train_model_line 参数，构建一个以该参数为前缀的筛选条件
+        # 构建一个以 train_model_line 为前缀的筛选条件
         if train_model_line_param:
             query_conditions.append(Q(train_model__startswith=train_model_line_param.strip('%')))
 
-        # 如果提供了 train_model 参数，构建一个精确匹配的筛选条件
+        # 构建一个精确匹配 train_model 的筛选条件
         if train_model_param:
             query_conditions.append(Q(train_model=train_model_param))
 
-        # 如果提供了 assessment_item 参数，构建一个精确匹配的筛选条件
+        # 构建一个精确匹配 assessment_item 的筛选条件
         if assessment_item_param:
             query_conditions.append(Q(assessment_item=assessment_item_param))
 
         # 应用所有筛选条件
         if query_conditions:
+            # 使用 reduce 和 operator.and_ 来将所有筛选条件连接起来
             queryset = queryset.filter(reduce(operator.and_, query_conditions))
 
         return queryset
