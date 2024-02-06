@@ -47,8 +47,8 @@ class Assessment_Base(models.Model):
         default=OTHER,  # 默认值设置为0，对应于“其他”
         verbose_name="考核结果"
     )
-        # 动态数据字段
-    additional_data = models.JSONField(blank=True, null=True,verbose_name="动态数据")  # 用于存储额外的动态数据
+    # 动态数据字段存储整体用时和每个步骤的用时
+    additional_data = models.JSONField(verbose_name="动态数据", blank=True, null=True)  # 用于存储额外的动态数据
 
     class Meta:
         verbose_name = "考核信息"
@@ -58,4 +58,3 @@ class Assessment_Base(models.Model):
     def __str__(self):
         # 显示车型信息-文件名-姓名
         return f"{self.file_name} - {self.train_model} - {self.name}"
-        

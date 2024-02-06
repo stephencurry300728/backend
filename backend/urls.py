@@ -35,10 +35,6 @@ There are two mandatory arguments to the register() method:
 3. basename - The base to use for the URL names that are created.
 '''
 # 主路由
-'''
-basename='assessment09a02'告诉Django REST Framework（DRF）为Assessment09A02ViewSet生成的所有URL添加前缀assessment-09a02
-当序列化 reverse('assessment09a02-detail', ...)时，Django知道这应该匹配到Assessment09A02ViewSet的详情 -detail 视图的URL 
-'''
 router.register(r'assessment-base', AssessmentBaseViewSet, basename='assessmentbase')
 
 # 前端路由守卫定义必须有登录的用户才能放行
