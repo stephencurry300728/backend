@@ -82,7 +82,7 @@ class AssessmentBaseViewSet(viewsets.ModelViewSet):
 
         # 构建一个以 train_model_line 为前缀的筛选条件
         if train_model_line_param:
-            query_conditions.append(Q(train_model__startswith=train_model_line_param.strip('%')))
+            query_conditions.append(Q(train_model__startswith=train_model_line_param))
 
         # 构建一个精确匹配 train_model 的筛选条件
         if train_model_param:
