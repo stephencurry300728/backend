@@ -134,37 +134,26 @@ class AssessmentBaseViewSet(viewsets.ModelViewSet):
         return queryset
 
 # 定义文件上传视图
+
 class AssessmentUploadView(APIView):
-    '''
-    定义一个方法，用于将考核结果的文本映射为整数
-    '''
+    
     def map_assessment_result(self, result_text):
-        
         mapping = {
             '优秀': Assessment_Base.EXCELLENT,
             '合格': Assessment_Base.QUALIFIED,
             '不合格': Assessment_Base.NOT_QUALIFIED,
         }
-        return mapping.get(result_text, Assessment_Base.OTHER)
-
-    '''
-    Parses multipart HTML form content, which supports file uploads. 
-    request.data and request.FILES will be populated with a QueryDict and MultiValueDict respectively.
-    You will typically use both FormParser and MultiPartParser together in order to fully support HTML form data.
-    '''
+        return mapping.get(result_text, Assessment_Base.OTHER)    
+    
     parser_classes = (MultiPartParser, FormParser)
 
     def post(self, request, *args, **kwargs):
         files = request.FILES.getlist('file')
 
-        # 遍历上传的批量文件
         for file_obj in files:
             try:
-                # 使用事务处理，以便在处理文件时发生错误时可以回滚
                 with transaction.atomic():
-                    # 获取单个文件名
                     file_name = file_obj.name
-                    # 检查并删除同名文件的旧记录（方便重新上传更新新数据后的新文件）
                     Assessment_Base.objects.filter(file_name=file_name).delete()
 
                     file_content = file_obj.read()
@@ -181,7 +170,6 @@ class AssessmentUploadView(APIView):
                     for encoding in ['utf-8', 'gbk', 'latin1', 'ascii', 'utf-16', 'utf-32', 'cp1252', 'gb2312', 'big5']:
                         try:
                             io_string = io.StringIO(file_content.decode(encoding))
-                            # 剔除第一行关于操作的行
                             df = pd.read_csv(io_string, header=1)
                             break
                         except UnicodeDecodeError:
@@ -190,7 +178,6 @@ class AssessmentUploadView(APIView):
                     if df is None:
                         return Response({'detail': f'文件 {file_name} 无法解码，请检查文件编码格式!'}, status=status.HTTP_400_BAD_REQUEST)
 
-                    # 删除备注列
                     if '备注' in df.columns:
                         df = df.drop('备注', axis=1)
                     '''
@@ -202,21 +189,32 @@ class AssessmentUploadView(APIView):
                     '''   
                     df = df.sort_values(by=['姓名', '工作证编号', '车型', '考核项目'])
                     df = df.drop_duplicates(subset=['姓名', '工作证编号', '车型', '考核项目'], keep='last')
+                    
+                    # 首先，获取DataFrame的列名列表
+                    columns = df.columns.tolist()
+                    # 找到"整体耗时"这一列的索引
+                    try:
+                        # 尝试找到"整体耗时"这一列的索引
+                        time_index = columns.index('整体耗时')
+                    except ValueError:
+                        try:
+                            # 如果"整体耗时"列不存在，尝试找到"整体用时"这一列的索引
+                            time_index = columns.index('整体用时')
+                        except ValueError:
+                            # 如果"整体用时"也不存在，可能需要处理错误或选择一个备选方案
+                            time_index = len(columns)  # 假设所有列都需要保留
 
+                    # 在遍历DataFrame的每一行之前，确定需要pop的列
+                    columns_to_pop = columns[:time_index]
+                    
                     for index, row in df.iterrows():
-                        # 应用.strip()方法去除前后的空格
-                        crew_group = row.get('乘务班组', '').strip()
-                        name = row.get('姓名', '').strip()
-                        train_model = row.get('车型', '').strip()
-                        assessment_item = row.get('考核项目', '').strip()
-                        # 尝试将工作证编号的浮点数先转换为整数，然后转换为字符串
+                        # 尝试将工作证编号先转换为整数，然后转换为字符串
                         try:
                             work_certificate_number = str(int(row.get('工作证编号')))
                         # 如果转换失败，则将工作证编号置为空字符串
                         except (ValueError, TypeError):
                             work_certificate_number = ''
                             
-                        # 如果工作证编号为空或不是大于四位数的数字，则跳过当前行不录入
                         if pd.isna(work_certificate_number) or not re.match(r'^\d{5,}$', str(work_certificate_number)):
                             print(f"跳过文件 {file_name} 中的行 {index}: 工作证编号 '{work_certificate_number}' 不是大于四位数的数字")
                             continue
@@ -238,24 +236,19 @@ class AssessmentUploadView(APIView):
                         # 考核结果的映射
                         assessment_result = self.map_assessment_result(row.get('考核结果'))
 
-                        # 将 DataFrame 的行（row）转换为字典 每一行都被转换成了一个键值对的集合，其中键是列名，值是对应的数据项
                         additional_data = row.to_dict()
-                        # 检查每个值是否为 Pandas 的 NA/NaN（不是数字的标识符）
-                        # 如果是，将这个值替换为 None 这样做的原因是 JSONField 存储的是有效的 JSON 数据
-                        # 而在 JSON 中，不存在值应表示为 null（在 Python 中对应 None）
                         additional_data = {k: (None if pd.isna(v) else v) for k, v in additional_data.items()}
-                        # 删除不需要的固定字段
-                        for field in ['记录日期', '乘务班组', '姓名', '工作证编号', '车型', '考核项目', '考核结果']:
+                        for field in columns_to_pop:
                             additional_data.pop(field, None)
 
                         Assessment_Base.objects.create(
                             file_name=file_name,
                             record_date=record_date,
-                            crew_group=crew_group,
-                            name=name,
+                            crew_group=row.get('乘务班组'),
+                            name=row.get('姓名'),
                             work_certificate_number=work_certificate_number,
-                            train_model=train_model,
-                            assessment_item=assessment_item,
+                            train_model=row.get('车型'),
+                            assessment_item=row.get('考核项目'),
                             assessment_result=assessment_result,
                             additional_data=additional_data
                         )

@@ -28,7 +28,7 @@ class AssessmentBaseAdmin(admin.ModelAdmin):
     # 设置显示字段
     list_display = ('id','record_date','crew_group','name','train_model','assessment_item','assessment_result','file_name')
     list_display_links = ('id','record_date','crew_group','name','train_model','assessment_item','assessment_result')
-    search_fields = ('record_date','crew_group', 'train_model','assessment_item','assessment_result')
+    search_fields = ('record_date','crew_group','name','train_model','assessment_item','assessment_result','file_name')
 
 admin.site.register(NewUser,NewUserAdmin)
 admin.site.register(Assessment_Base, AssessmentBaseAdmin)
