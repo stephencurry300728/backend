@@ -4,7 +4,7 @@ from django.db import models
 from django.forms import TextInput
 from django.utils.translation import gettext_lazy as _
 
-from .models import Assessment_Base, Assessment_09A02, Assessment_09A0304, Assessment_10A01, Assessment_10A02, NewUser
+from .models import Assessment_Base,NewUser
 
 # 自定义用户管理界面
 class NewUserAdmin(UserAdmin):
@@ -32,7 +32,3 @@ class AssessmentBaseAdmin(admin.ModelAdmin):
 
 admin.site.register(NewUser,NewUserAdmin)
 admin.site.register(Assessment_Base, AssessmentBaseAdmin)
-admin.site.register(Assessment_09A02)
-admin.site.register(Assessment_09A0304)
-admin.site.register(Assessment_10A01)
-admin.site.register(Assessment_10A02)

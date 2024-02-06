@@ -23,13 +23,7 @@ from rest_framework.documentation import include_docs_urls
 from rest_framework.routers import DefaultRouter
 from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
 
-from upload.views import (
-    Assessment09A02ViewSet,
-    Assessment09A0304ViewSet,
-    Assessment10A01ViewSet,
-    Assessment10A02ViewSet,
-    AssessmentBaseViewSet,
-)
+from upload.views import AssessmentBaseViewSet
 
 from upload.views import UserInfoViewSet,LogoutView,AssessmentUploadView
 
@@ -46,10 +40,6 @@ basename='assessment09a02'告诉Django REST Framework（DRF）为Assessment09A02
 当序列化 reverse('assessment09a02-detail', ...)时，Django知道这应该匹配到Assessment09A02ViewSet的详情 -detail 视图的URL 
 '''
 router.register(r'assessment-base', AssessmentBaseViewSet, basename='assessmentbase')
-router.register(r'assessment-09a02', Assessment09A02ViewSet, basename='assessment09a02')
-router.register(r'assessment-09a0304', Assessment09A0304ViewSet, basename='assessment09a0304')
-router.register(r'assessment-10a01', Assessment10A01ViewSet, basename='assessment10a01')
-router.register(r'assessment-10a02', Assessment10A02ViewSet, basename='assessment10a02')
 
 # 前端路由守卫定义必须有登录的用户才能放行
 router.register(prefix="info", viewset=UserInfoViewSet)

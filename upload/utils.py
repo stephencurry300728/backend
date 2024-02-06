@@ -1,6 +1,5 @@
 from datetime import timedelta
 import pandas as pd
-from .models import Assessment_09A02, Assessment_09A0304, Assessment_10A01, Assessment_10A02
 
 # 定义解析时间的函数来处理csv中的时间字段以存储到数据库中的DurationField字段
 '''
@@ -19,17 +18,3 @@ def parse_duration(time_str):
     except (ValueError, IndexError) as e:
         print(f"解析错误: {e}")  # 打印解析错误
         return None  # 处理无法解析的值
-
-# 从列中获取对应的值
-def get_model_class_for_train_model(train_model):
-    """
-    根据车型字符串返回相应的Django模型类。
-    """
-    model_mapping = {
-        '09A02': Assessment_09A02,
-        '09A03': Assessment_09A0304,
-        '09A04': Assessment_09A0304,
-        '10A01': Assessment_10A01,
-        '10A02': Assessment_10A02,
-    }
-    return model_mapping.get(train_model, None)
