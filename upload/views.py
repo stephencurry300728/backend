@@ -133,6 +133,17 @@ class AssessmentBaseViewSet(viewsets.ModelViewSet):
 
         return queryset
 
+    @action(detail=False, methods=['get'], url_path='unpaged-filter-data')
+    def unpaged_data(self, request, *args, **kwargs):
+        # 重用定义好的 get_queryset 方法来获取满足筛选条件的全量数据（不分页）
+        queryset = self.get_queryset()
+        
+        # 使用serializer来序列化数据
+        serializer = self.get_serializer(queryset, many=True)
+        
+        # 返回序列化后的数据
+        return Response(serializer.data)
+
 # 定义文件上传视图
 
 class AssessmentUploadView(APIView):
