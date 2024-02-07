@@ -98,6 +98,7 @@ class AssessmentBaseViewSet(viewsets.ModelViewSet):
     # 重写 get_queryset 方法，以便根据日期范围筛选查询集
     def get_queryset(self):
         queryset = super().get_queryset()  # 获取默认查询集
+        # 从前端传递的查询参数 params 中获取各参数进行筛选
         start_date = self.request.query_params.get('start_date')
         end_date = self.request.query_params.get('end_date')
         train_model_line_param = self.request.query_params.get('train_model_line', None)
@@ -114,9 +115,11 @@ class AssessmentBaseViewSet(viewsets.ModelViewSet):
 
         query_conditions = []
 
-        # 构建一个以 train_model_line 为前缀的线路匹配
+        # 检查 train_model_line_param 是否有值
         if train_model_line_param:
+            # 如果有值，添加一个条件来匹配以该值开始的 train_model
             query_conditions.append(Q(train_model__startswith=train_model_line_param))
+        # 如果 train_model_line_param 为空，即前端的选项框中选取了 所有线路，不添加该条件，从而不限制查询结果
 
         # 构建一个精确匹配 train_model 的车型匹配
         if train_model_param:
@@ -133,7 +136,7 @@ class AssessmentBaseViewSet(viewsets.ModelViewSet):
 
         return queryset
 
-    @action(detail=False, methods=['get'], url_path='unpaged-filter-data')
+    @action(detail=False, methods=['get'], url_path='unpaged-data')
     def unpaged_data(self, request, *args, **kwargs):
         # 重用定义好的 get_queryset 方法来获取满足筛选条件的全量数据（不分页）
         queryset = self.get_queryset()
@@ -144,8 +147,7 @@ class AssessmentBaseViewSet(viewsets.ModelViewSet):
         # 返回序列化后的数据
         return Response(serializer.data)
 
-# 定义文件上传视图
-
+# 定义文件上传并写入数据库的逻辑
 class AssessmentUploadView(APIView):
     
     def map_assessment_result(self, result_text):
