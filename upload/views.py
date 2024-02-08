@@ -167,6 +167,7 @@ class AssessmentUploadView(APIView):
             try:
                 with transaction.atomic():
                     file_name = file_obj.name
+                    # 删除数据库中已有的同名文件的数据
                     Assessment_Base.objects.filter(file_name=file_name).delete()
 
                     file_content = file_obj.read()
