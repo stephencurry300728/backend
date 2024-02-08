@@ -9,7 +9,7 @@ class AssessmentBaseSerializer(serializers.ModelSerializer):
         model = Assessment_Base
         fields = '__all__'  # 确保包含所有模型字段以及新添加的trainLines字段
 
-    # 定义一个方法来获取train_model字段的前两位
+    # 定义一个方法来获取train_model字段的前两位 即线路编号
     def get_trainLines(self, obj):
         # 如果train_model字段存在且长度大于等于2, 则返回其前两位
         if obj.train_model and len(obj.train_model) >= 2:
