@@ -246,7 +246,9 @@ class AssessmentUploadView(APIView):
                         except ValueError:
                             print(f"跳过文件 {file_name} 中的行 {index}: 记录日期 '{record_date_str}' 格式错误")
                             continue
-
+                        crew_group = row.get('乘务班组')
+                        if pd.notna(crew_group) and '高峰' in crew_group:
+                            crew_group = '乘务高峰组'
                         # 考核结果的映射
                         assessment_result = self.map_assessment_result(row.get('考核结果'))
 
@@ -258,7 +260,7 @@ class AssessmentUploadView(APIView):
                         Assessment_Base.objects.create(
                             file_name=file_name,
                             record_date=record_date,
-                            crew_group=row.get('乘务班组'),
+                            crew_group=crew_group,
                             name=row.get('姓名'),
                             work_certificate_number=work_certificate_number,
                             train_model=row.get('车型'),
