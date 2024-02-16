@@ -43,12 +43,12 @@ router.register(prefix="info", viewset=UserInfoViewSet)
 urlpatterns = [
     # 定义admin路径，连接到Django的管理后台
     path("admin/", admin.site.urls),
-    # 定义api路径，包含由DRF router自动生成的URLs
-    path("api/", include(router.urls)),
     # 接口文档
     path("docs/", include_docs_urls(title="API文档")),
     # 访问根目录重定向到api文档页面
     re_path(r'^$', lambda request: redirect('docs/', permanent=True)),
+    # 定义api路径，包含由DRF router自动生成的URLs
+    path("api/", include(router.urls)),
     # 定义用于获取 JWT 认证 token ("access")
     path('api/login/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
     # 定义用于刷新 JWT 认证 token ("refresh")
