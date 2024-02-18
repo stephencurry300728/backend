@@ -113,6 +113,7 @@ class AssessmentBaseViewSet(viewsets.ModelViewSet):
         elif end_date:
             queryset = queryset.filter(record_date__lte=end_date)
 
+        # 参考 https://github.com/encode/django-rest-framework/blob/master/rest_framework/filters.py
         query_conditions = []
 
         # 检查 train_model_line 是否有值
@@ -132,6 +133,7 @@ class AssessmentBaseViewSet(viewsets.ModelViewSet):
         # 对查询集 queryset 应用所有筛选条件
         if query_conditions:
             # 使用 reduce 和 operator.and_ 来将所有筛选条件连接起来
+            
             queryset = queryset.filter(reduce(operator.and_, query_conditions))
 
         return queryset
