@@ -142,7 +142,7 @@ REST_FRAMEWORK = {
         'rest_framework.pagination.LimitOffsetPagination',
     ],
     # 分页大小
-    "PAGE_SIZE": 20,
+    # "PAGE_SIZE": 20,
     "DATETIME_FORMAT": "%Y-%m-%d %H:%M:%S",
     "DEFAULT_RENDERER_CLASSES": [
         "rest_framework.renderers.JSONRenderer",
