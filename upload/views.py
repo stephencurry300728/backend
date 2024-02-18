@@ -101,9 +101,9 @@ class AssessmentBaseViewSet(viewsets.ModelViewSet):
         # 从前端传递的查询参数 params 中获取各参数进行筛选
         start_date = self.request.query_params.get('start_date')
         end_date = self.request.query_params.get('end_date')
-        train_model_line_param = self.request.query_params.get('train_model_line', None)
-        train_model_param = self.request.query_params.get('train_model', None)
-        assessment_item_param = self.request.query_params.get('assessment_item', None)
+        train_model_line = self.request.query_params.get('train_model_line', None)
+        train_model = self.request.query_params.get('train_model', None)
+        assessment_item = self.request.query_params.get('assessment_item', None)
 
         # 根据日期范围筛选查询集
         if start_date and end_date:
@@ -115,19 +115,19 @@ class AssessmentBaseViewSet(viewsets.ModelViewSet):
 
         query_conditions = []
 
-        # 检查 train_model_line_param 是否有值
-        if train_model_line_param:
+        # 检查 train_model_line 是否有值
+        if train_model_line:
             # 如果有值，添加一个条件来匹配以该值开始的 train_model
-            query_conditions.append(Q(train_model__startswith=train_model_line_param))
-        # 如果 train_model_line_param 为空，即前端的选项框中选取了 所有线路，不添加该条件，从而不限制查询结果
+            query_conditions.append(Q(train_model__startswith=train_model_line))
+        # 如果 train_model_line 为空，即前端的选项框中选取了 所有线路，不添加该条件，从而不限制查询结果
 
         # 构建一个精确匹配 train_model 的车型匹配
-        if train_model_param:
-            query_conditions.append(Q(train_model=train_model_param))
+        if train_model:
+            query_conditions.append(Q(train_model=train_model))
 
         # 构建一个精确匹配 assessment_item 的考核项目匹配
-        if assessment_item_param:
-            query_conditions.append(Q(assessment_item=assessment_item_param))
+        if assessment_item:
+            query_conditions.append(Q(assessment_item=assessment_item))
 
         # 对查询集 queryset 应用所有筛选条件
         if query_conditions:
