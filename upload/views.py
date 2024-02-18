@@ -150,6 +150,7 @@ class AssessmentBaseViewSet(viewsets.ModelViewSet):
 # 定义文件上传并写入数据库的逻辑
 class AssessmentUploadView(APIView):
     
+    # 定义一个方法来将考核结果文本映射为整数存入数据库
     def map_assessment_result(self, result_text):
         mapping = {
             '优秀': Assessment_Base.EXCELLENT,
