@@ -26,7 +26,7 @@ class AssessmentBaseAdmin(admin.ModelAdmin):
         models.IntegerField: {'widget': TextInput(attrs={'size':'20'})},
     }
     # 设置显示字段
-    list_display = ('id','record_date','crew_group','name','train_model','assessment_item','assessment_result','file_name')
+    list_display = ('id','file_name','record_date','crew_group','name','train_model','assessment_item','assessment_result')
     list_display_links = ('id','record_date','crew_group','name','train_model','assessment_item','assessment_result','file_name')
     search_fields = ('record_date','crew_group','name','train_model','assessment_item','assessment_result','file_name')
 
