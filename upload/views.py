@@ -133,7 +133,7 @@ class AssessmentBaseViewSet(viewsets.ModelViewSet):
         # 对查询集 queryset 应用所有筛选条件
         if query_conditions:
             # 使用 reduce 和 operator.and_ 来将所有筛选条件连接起来
-            
+            # 参考 https://github.com/encode/django-rest-framework/blob/master/rest_framework/filters.py
             queryset = queryset.filter(reduce(operator.and_, query_conditions))
 
         return queryset
