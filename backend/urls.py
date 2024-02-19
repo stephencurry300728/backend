@@ -36,7 +36,6 @@ There are two mandatory arguments to the register() method:
 '''
 # 主路由
 router.register(r'assessment-base', AssessmentBaseViewSet, basename='assessmentbase')
-
 # 前端路由守卫定义必须有登录的用户才能放行
 router.register(prefix="info", viewset=UserInfoViewSet)
 
