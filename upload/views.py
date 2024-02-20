@@ -68,6 +68,7 @@ class AssessmentBaseViewSet(viewsets.ModelViewSet):
     serializer_class = AssessmentBaseSerializer
     pagination_class = StandardResultsSetPagination
     # 添加OrderingFilter到过滤后端
+    # 参考文档 https://www.django-rest-framework.org/api-guide/filtering/#orderingfilter
     filter_backends = [OrderingFilter, DjangoFilterBackend]
     # 允许排序的字段
     ordering_fields = '__all__'  # 允许所有字段可以排序
