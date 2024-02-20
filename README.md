@@ -19,11 +19,11 @@ python manage.py migrate
 python manage.py createsuperuser
 ```
 
-用户名 `username `为：admin
+用户名 `username` 为：admin
 
 邮箱随便填写：admin@gmail.com
 
-密码 `password`必须为：111111
+密码 `password` 必须为：111111
 
 忽略密码过于简单的报错 y
 
