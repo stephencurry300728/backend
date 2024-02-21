@@ -1,5 +1,16 @@
 ### 1. 创建一个虚拟环境后安装依赖
 
+> 在前后端分离的项目根目录下面创建虚拟环境
+```bash
+python -m venv venv
+```
+
+> 激活虚拟环境：创建虚拟环境之后，需要激活它才能开始使用。在Windows上，可以通过以下命令激活虚拟环境
+
+```plaintext
+.\venv\Scripts\activate
+```
+> 接着安装项目所需要的全部依赖
 ```bash
 pip install -r requirements.txt
 ```
