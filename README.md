@@ -1,21 +1,31 @@
 ### 1. 创建一个虚拟环境后安装依赖
+> 在前后端分离的总项目的 “根目录” 下面创建一个虚拟环境命名为 `venv`
 
-> 在前后端分离的项目根目录下面创建虚拟环境
+![alt text](image-1.png)
+
 ```bash
 python -m venv venv
 ```
 
 > 激活虚拟环境：创建虚拟环境之后，需要激活它才能开始使用。在Windows上，可以通过以下命令激活虚拟环境
 
-```plaintext
+```bash
 .\venv\Scripts\activate
 ```
-> 接着安装项目所需要的全部依赖
+
+> 接着 cd 到backend 这个后端 `project` 目录下面
+```bash
+cd backend
+```
+
+> 对刚刚创建的虚拟环境 `(venv)` 安装项目所需要的全部依赖
 ```bash
 pip install -r requirements.txt
 ```
 
-### 2. 对数据库产生迁移文件（这里我设置的是sqlite3，后续部署会换成mysql）
+### 2. 对数据库产生迁移文件
+> 这里我设置的是sqlite3，后续部署上线会换成 `mysql`
+
 ```bash
 python manage.py makemigrations
 ```
