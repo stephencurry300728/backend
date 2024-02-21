@@ -1,7 +1,7 @@
 ### 1. 创建一个虚拟环境后安装依赖
 > 在前后端分离的总项目的 “根目录” 下面创建一个虚拟环境命名为 `venv`
 
-![alt text](image-1.png)
+![alt text](目录文件.png)
 
 ```bash
 python -m venv venv
@@ -55,4 +55,4 @@ python manage.py runserver
 
 ### 其中启动的端口为  `http://127.0.0.1:8000/`
 
-![alt text](image.png)
+![alt text](端口展示.png)
