@@ -55,6 +55,7 @@ class LogoutView(APIView):
             # 如果出错，打印错误信息
             print(error)
             return Response(status=status.HTTP_400_BAD_REQUEST)
+# 上述两个CBV视图是用来获取当前登录用户信息和用户登出的，通用于所有的Django项目
 
 # 定义分页规则
 class StandardResultsSetPagination(PageNumberPagination):
