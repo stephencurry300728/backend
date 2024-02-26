@@ -86,7 +86,7 @@ WSGI_APPLICATION = "backend.wsgi.application"
 # Database
 # https://docs.djangoproject.com/en/4.2/ref/settings/#databases
 
-# 本地数据库用的sqlite3而非Nysql
+# 开发的本地数据库用的sqlite3而非 Mysql
 DATABASES = {
     "default": {
         "ENGINE": "django.db.backends.sqlite3",
