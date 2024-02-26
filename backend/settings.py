@@ -100,8 +100,8 @@ DATABASES = {
 #         'NAME': 'your_database_name',
 #         'USER': 'your_database_user',
 #         'PASSWORD': 'your_database_password',
-#         'HOST': 'localhost',   # Or an IP Address that your DB is hosted on
-#         'PORT': '3306',        # 默认MySQL端口是3306
+#         'HOST': 'localhost',
+#         'PORT': '3306',
 #     }
 # }
 
