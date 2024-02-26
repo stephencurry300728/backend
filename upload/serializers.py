@@ -3,6 +3,20 @@ from .models import Assessment_Base
 
 class AssessmentBaseSerializer(serializers.ModelSerializer):
     # 添加一个新的字段trainLines, 这个字段不在模型中定义，而是动态计算得到
+    """
+    A read-only field that get its representation from calling a method on the
+    parent serializer class. The method called will be of the form
+    "get_{field_name}", and should take a single argument, which is the
+    object being serialized.
+
+    For example:
+
+    class ExampleSerializer(self):
+        extra_info = SerializerMethodField()
+
+        def get_extra_info(self, obj):
+            return ...  # Calculate some data to return.
+    """
     trainLines = serializers.SerializerMethodField()
 
     class Meta:
