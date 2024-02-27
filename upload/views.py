@@ -318,7 +318,17 @@ class SaveClassification(APIView):
         return Response({"status": "success"}, status=status.HTTP_200_OK)
     
 class DataKeyCategoryList(APIView):
-    
+    '''
+    后端发送的数据格式也为：
+    {
+        "file_name": "10tsm1.csv",
+        "classifications": {
+            "解锁逃生门箱体解锁把手": "识故",
+            "取下逃生门箱体上盖板": "排故",
+            ...
+        }
+    }
+    '''
     def get(self, request, *args, **kwargs):
         # 首先获取所有唯一的file_name
         file_names = Assessment_Classification.objects.values_list('file_name', flat=True).distinct()
@@ -337,5 +347,5 @@ class DataKeyCategoryList(APIView):
                 "file_name": file_name,
                 "classifications": classifications
             })
-        
+
         return Response(response_data,status=status.HTTP_200_OK)

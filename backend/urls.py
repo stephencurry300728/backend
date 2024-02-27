@@ -58,5 +58,5 @@ urlpatterns = [
     # 保存设置的分类信息
     path('api/save-classification/', SaveClassification.as_view(), name='save-classification'),
     # 获取设置完的分类信息
-    path('api/categories/', DataKeyCategoryList.as_view(), name='category-list'),
+    path('api/data-categories/', DataKeyCategoryList.as_view(), name='category-list'),
 ]
