@@ -280,22 +280,25 @@ class AssessmentBaseViewSet(viewsets.ModelViewSet):
         # 返回序列化后的数据
         return Response(serializer.data)
 
+# 保存操作分类视图
 class SaveClassification(APIView):
     
     def post(self, request, *args, **kwargs):
-        # 前端发送的数据格式为：
-        # {
-        #   "file_name": "10tsm1.csv",
-        #   "classifications": {
-        #       "解锁逃生门箱体解锁把手": "识故",
-        #       "取下逃生门箱体上盖板": "排故",
-        #       ...
-        #   }
-        # }
+        '''
+        前端发送的数据格式为：
+        {
+            "file_name": "10tsm1.csv",
+            "classifications": {
+                "解锁逃生门箱体解锁把手": "识故",
+                "取下逃生门箱体上盖板": "排故",
+                ...
+            }
+        }
+        '''
         file_name = request.data.get('file_name')
         classifications = request.data.get('classifications')
 
-        # 找到所有具有该file_name的Assessment_Base实例
+        # 找到所有具有该 file_name 的 Assessment_Base 实例
         assessment_bases = Assessment_Base.objects.filter(file_name=file_name)
         if not assessment_bases.exists():
             return Response({"error": "File name not found."}, status=status.HTTP_404_NOT_FOUND)
@@ -304,6 +307,7 @@ class SaveClassification(APIView):
             # 对于每个找到的Assessment_Base实例，更新或创建Assessment_Classification记录
             for key, category in classifications.items():
                 # 确保这里的`assessment_base`和`data_key`足以唯一标识一个记录
+                # ORM 数据库提供部分更新和首次创建的支持
                 Assessment_Classification.objects.update_or_create(
                     assessment_base=assessment_base,
                     file_name=file_name,
