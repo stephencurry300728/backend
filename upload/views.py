@@ -55,132 +55,6 @@ class LogoutView(APIView):
             return Response(status=status.HTTP_400_BAD_REQUEST)
 # 上述两个CBV视图是用来获取当前登录用户信息和用户登出的，通用于所有的Django项目
 
-# 定义分页规则
-class StandardResultsSetPagination(PageNumberPagination):
-    page_size = 12
-    page_size_query_param = 'page_size'
-    max_page_size = 1000
-
-# 驾驶员基本信息筛选排序视图
-class AssessmentBaseViewSet(viewsets.ModelViewSet):
-    queryset = Assessment_Base.objects.all()
-    serializer_class = AssessmentBaseSerializer
-    pagination_class = StandardResultsSetPagination
-    # 添加OrderingFilter到过滤后端
-    # 参考文档 https://www.django-rest-framework.org/api-guide/filtering/#orderingfilter
-    filter_backends = [OrderingFilter, DjangoFilterBackend]
-    # 允许排序的字段
-    ordering_fields = '__all__'  # 允许所有字段可以排序
-    ordering = ['record_date']  # 默认按照记录日期升序排列
-    
-    # 获取所有不重复的 train_model 和 assessment_item 组合，为前端的 科目 提供选项框
-    @action(detail=False, methods=['get'], url_path='all-train-and-assessment')
-    def all_train_and_assessment_items(self, request, *args, **kwargs):
-        # 使用 Django 的 .values() 和 .distinct() 来获取所有不重复的 train_model 和 assessment_item 组合
-        queryset = self.get_queryset().values('train_model', 'assessment_item').distinct()
-
-        # 使用 set 来存储唯一的组合
-        unique_combinations = set()
-
-        # 遍历查询集，为每个组合创建一个唯一的字符串标识符，然后添加到 set 中
-        for item in queryset:
-            combination = f"{item['train_model']}-{item['assessment_item']}"
-            unique_combinations.add(combination)
-
-        # 将 set 转换回列表形式的数据，分别返回 train_model 和 assessment_item 字段
-        result = []
-        for combination in unique_combinations:
-            train_model, assessment_item = combination.split('-', 1)
-            result.append({"train_model": train_model, "assessment_item": assessment_item})
-
-        return Response(result)
-    
-    # 重写 get_queryset 方法，以便根据日期范围筛选查询集
-    def get_queryset(self):
-        queryset = super().get_queryset()  # 获取默认查询集
-        # 从前端传递的查询参数 params 中获取各参数进行筛选
-        start_date = self.request.query_params.get('start_date')
-        end_date = self.request.query_params.get('end_date')
-        train_model_line = self.request.query_params.get('train_model_line', None)
-        train_model = self.request.query_params.get('train_model', None)
-        assessment_item = self.request.query_params.get('assessment_item', None)
-
-        # 根据日期范围筛选查询集
-        if start_date and end_date:
-            queryset = queryset.filter(record_date__range=[start_date, end_date])
-        elif start_date:
-            queryset = queryset.filter(record_date__gte=start_date)
-        elif end_date:
-            queryset = queryset.filter(record_date__lte=end_date)
-
-        # 参考 https://github.com/encode/django-rest-framework/blob/master/rest_framework/filters.py
-        query_conditions = []
-
-        # 检查 train_model_line 是否有值
-        if train_model_line:
-            # 如果有值，添加一个条件来匹配以该值开始的 train_model
-            query_conditions.append(Q(train_model__startswith=train_model_line))
-        # 如果 train_model_line 为空，即前端的选项框中选取了 所有线路，不添加该条件，从而不限制查询结果
-
-        # 构建一个精确匹配 train_model 的车型匹配
-        if train_model:
-            query_conditions.append(Q(train_model=train_model))
-
-        # 构建一个精确匹配 assessment_item 的考核项目匹配
-        if assessment_item:
-            query_conditions.append(Q(assessment_item=assessment_item))
-
-        # 对查询集 queryset 应用所有筛选条件
-        if query_conditions:
-            # 使用 reduce 和 operator.and_ 来将所有筛选条件连接起来
-            # 参考 https://github.com/encode/django-rest-framework/blob/master/rest_framework/filters.py
-            queryset = queryset.filter(reduce(operator.and_, query_conditions))
-
-        return queryset
-
-    @action(detail=False, methods=['get'], url_path='unpaged-data')
-    def unpaged_data(self, request, *args, **kwargs):
-        # 重用定义好的 get_queryset 方法来获取满足筛选条件的全量数据（不分页）
-        queryset = self.get_queryset()
-        
-        # 使用serializer来序列化数据
-        serializer = self.get_serializer(queryset, many=True)
-        
-        # 返回序列化后的数据
-        return Response(serializer.data)
-
-class SaveClassification(APIView):
-    
-    def post(self, request, *args, **kwargs):
-        # 前端发送的数据格式为：
-        # {
-        #   "file_name": "10tsm1.csv",
-        #   "classifications": {
-        #       "解锁逃生门箱体解锁把手": "识故",
-        #       "取下逃生门箱体上盖板": "排故",
-        #       ...
-        #   }
-        # }
-        file_name = request.data.get('file_name')
-        classifications = request.data.get('classifications')
-
-        # 找到所有具有该file_name的Assessment_Base实例
-        assessment_bases = Assessment_Base.objects.filter(file_name=file_name)
-        if not assessment_bases.exists():
-            return Response({"error": "File name not found."}, status=status.HTTP_404_NOT_FOUND)
-
-        for assessment_base in assessment_bases:
-            # 对于每个找到的Assessment_Base实例，更新或创建Assessment_Classification记录
-            for key, category in classifications.items():
-                # 确保这里的`assessment_base`和`data_key`足以唯一标识一个记录
-                Assessment_Classification.objects.update_or_create(
-                    assessment_base=assessment_base,
-                    data_key=key,
-                    defaults={'category': category}
-    )
-
-        return Response({"status": "success"}, status=status.HTTP_200_OK)
-
 # 定义文件上传并写入数据库的逻辑
 class AssessmentUploadView(APIView):
     
@@ -311,3 +185,129 @@ class AssessmentUploadView(APIView):
                 return Response({'detail': f'处理文件 {file_name} 时发生错误: {str(e)}'}, status=status.HTTP_400_BAD_REQUEST)
 
         return Response({'detail': '所有文件上传成功。'}, status=status.HTTP_201_CREATED)
+
+# 定义分页规则
+class StandardResultsSetPagination(PageNumberPagination):
+    page_size = 12
+    page_size_query_param = 'page_size'
+    max_page_size = 1000
+
+# 驾驶员基本信息筛选排序视图
+class AssessmentBaseViewSet(viewsets.ModelViewSet):
+    queryset = Assessment_Base.objects.all()
+    serializer_class = AssessmentBaseSerializer
+    pagination_class = StandardResultsSetPagination
+    # 添加OrderingFilter到过滤后端
+    # 参考文档 https://www.django-rest-framework.org/api-guide/filtering/#orderingfilter
+    filter_backends = [OrderingFilter, DjangoFilterBackend]
+    # 允许排序的字段
+    ordering_fields = '__all__'  # 允许所有字段可以排序
+    ordering = ['record_date']  # 默认按照记录日期升序排列
+    
+    # 获取所有不重复的 train_model 和 assessment_item 组合，为前端的 科目 提供选项框
+    @action(detail=False, methods=['get'], url_path='all-train-and-assessment')
+    def all_train_and_assessment_items(self, request, *args, **kwargs):
+        # 使用 Django 的 .values() 和 .distinct() 来获取所有不重复的 train_model 和 assessment_item 组合
+        queryset = self.get_queryset().values('train_model', 'assessment_item').distinct()
+
+        # 使用 set 来存储唯一的组合
+        unique_combinations = set()
+
+        # 遍历查询集，为每个组合创建一个唯一的字符串标识符，然后添加到 set 中
+        for item in queryset:
+            combination = f"{item['train_model']}-{item['assessment_item']}"
+            unique_combinations.add(combination)
+
+        # 将 set 转换回列表形式的数据，分别返回 train_model 和 assessment_item 字段
+        result = []
+        for combination in unique_combinations:
+            train_model, assessment_item = combination.split('-', 1)
+            result.append({"train_model": train_model, "assessment_item": assessment_item})
+
+        return Response(result)
+    
+    # 重写 get_queryset 方法，以便根据日期范围筛选查询集
+    def get_queryset(self):
+        queryset = super().get_queryset()  # 获取默认查询集
+        # 从前端传递的查询参数 params 中获取各参数进行筛选
+        start_date = self.request.query_params.get('start_date')
+        end_date = self.request.query_params.get('end_date')
+        train_model_line = self.request.query_params.get('train_model_line', None)
+        train_model = self.request.query_params.get('train_model', None)
+        assessment_item = self.request.query_params.get('assessment_item', None)
+
+        # 根据日期范围筛选查询集
+        if start_date and end_date:
+            queryset = queryset.filter(record_date__range=[start_date, end_date])
+        elif start_date:
+            queryset = queryset.filter(record_date__gte=start_date)
+        elif end_date:
+            queryset = queryset.filter(record_date__lte=end_date)
+
+        # 参考 https://github.com/encode/django-rest-framework/blob/master/rest_framework/filters.py
+        query_conditions = []
+
+        # 检查 train_model_line 是否有值
+        if train_model_line:
+            # 如果有值，添加一个条件来匹配以该值开始的 train_model
+            query_conditions.append(Q(train_model__startswith=train_model_line))
+        # 如果 train_model_line 为空，即前端的选项框中选取了 所有线路，不添加该条件，从而不限制查询结果
+
+        # 构建一个精确匹配 train_model 的车型匹配
+        if train_model:
+            query_conditions.append(Q(train_model=train_model))
+
+        # 构建一个精确匹配 assessment_item 的考核项目匹配
+        if assessment_item:
+            query_conditions.append(Q(assessment_item=assessment_item))
+
+        # 对查询集 queryset 应用所有筛选条件
+        if query_conditions:
+            # 使用 reduce 和 operator.and_ 来将所有筛选条件连接起来
+            # 参考 https://github.com/encode/django-rest-framework/blob/master/rest_framework/filters.py
+            queryset = queryset.filter(reduce(operator.and_, query_conditions))
+
+        return queryset
+
+    @action(detail=False, methods=['get'], url_path='unpaged-data')
+    def unpaged_data(self, request, *args, **kwargs):
+        # 重用定义好的 get_queryset 方法来获取满足筛选条件的全量数据（不分页）
+        queryset = self.get_queryset()
+        
+        # 使用serializer来序列化数据
+        serializer = self.get_serializer(queryset, many=True)
+        
+        # 返回序列化后的数据
+        return Response(serializer.data)
+
+class SaveClassification(APIView):
+    
+    def post(self, request, *args, **kwargs):
+        # 前端发送的数据格式为：
+        # {
+        #   "file_name": "10tsm1.csv",
+        #   "classifications": {
+        #       "解锁逃生门箱体解锁把手": "识故",
+        #       "取下逃生门箱体上盖板": "排故",
+        #       ...
+        #   }
+        # }
+        file_name = request.data.get('file_name')
+        classifications = request.data.get('classifications')
+
+        # 找到所有具有该file_name的Assessment_Base实例
+        assessment_bases = Assessment_Base.objects.filter(file_name=file_name)
+        if not assessment_bases.exists():
+            return Response({"error": "File name not found."}, status=status.HTTP_404_NOT_FOUND)
+
+        for assessment_base in assessment_bases:
+            # 对于每个找到的Assessment_Base实例，更新或创建Assessment_Classification记录
+            for key, category in classifications.items():
+                # 确保这里的`assessment_base`和`data_key`足以唯一标识一个记录
+                Assessment_Classification.objects.update_or_create(
+                    assessment_base=assessment_base,
+                    data_key=key,
+                    defaults={'category': category}
+    )
+
+        return Response({"status": "success"}, status=status.HTTP_200_OK)
