@@ -156,8 +156,8 @@ class SaveClassification(APIView):
         # {
         #   "file_name": "10tsm1.csv",
         #   "classifications": {
-        #       "整体耗时": "识故",
-        #       "逃生门释放耗时": "排故",
+        #       "解锁逃生门箱体解锁把手": "识故",
+        #       "取下逃生门箱体上盖板": "排故",
         #       ...
         #   }
         # }
