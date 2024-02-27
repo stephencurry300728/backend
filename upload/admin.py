@@ -37,6 +37,7 @@ class AssessmentClassificationAdmin(admin.ModelAdmin):
     list_display_links = ('assessment_base','data_key','category')
     search_fields = ('assessment_base__file_name','data_key','category')  # 允许通过file_name和category搜索
 
+# 在管理员后台注册模型
 admin.site.register(NewUser,NewUserAdmin)
 admin.site.register(Assessment_Base, AssessmentBaseAdmin)
 admin.site.register(Assessment_Classification, AssessmentClassificationAdmin)
