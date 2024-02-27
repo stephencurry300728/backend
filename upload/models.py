@@ -68,8 +68,6 @@ class Assessment_Classification(models.Model):
     class Meta:
         verbose_name = "分类信息"
         verbose_name_plural = verbose_name
-        # 确保不会因为这些字段的组合相同而创建重复的记录
-        unique_together = ('assessment_base', 'data_key')
 
     def __str__(self):
         return f"{self.assessment_base.file_name}: {self.category}"
