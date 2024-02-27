@@ -34,7 +34,7 @@ class UserInfoViewSet(viewsets.ViewSet):
             user_info['roles'] = 'admin' if role == 0 else 'user'
             return Response(user_info)
         else:
-            return Response({'error': 'User not found.'}, status=404)
+            return Response({'error': 'User not found.'}, status=status.HTTP_404_NOT_FOUND)
 
 # 定义用户登出视图        
 class LogoutView(APIView):
@@ -347,4 +347,4 @@ class DataKeyCategoryList(APIView):
                 "classifications": classifications
             })
 
-        return Response(response_data,status=status.HTTP_200_OK)
+        return Response(response_data, status=status.HTTP_200_OK)
