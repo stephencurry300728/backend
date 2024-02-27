@@ -335,7 +335,7 @@ class DataKeyCategoryList(APIView):
         # 创建一个空列表，用于存储响应数据
         response_data = []
 
-        # 遍历每个file_name，为其构建 classification s字典
+        # 遍历每个file_name，为其构建 classifications 字典
         for file_name in file_names:
             data_key_categories = Assessment_Classification.objects.filter(file_name=file_name).values('data_key', 'category')
             # 使用字典推导式构建 classifications 字典
