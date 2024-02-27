@@ -319,7 +319,7 @@ class SaveClassification(APIView):
     
 class DataKeyCategoryList(APIView):
     '''
-    后端发送的数据格式也为：
+    从后端请求到的数据格式也为：
     {
         "file_name": "10tsm1.csv",
         "classifications": {
@@ -330,16 +330,15 @@ class DataKeyCategoryList(APIView):
     }
     '''
     def get(self, request, *args, **kwargs):
-        # 首先获取所有唯一的file_name
+        # 首先获取所有唯一的 file_name
         file_names = Assessment_Classification.objects.values_list('file_name', flat=True).distinct()
-        
-        # 准备最终的响应列表
+        # 创建一个空列表，用于存储响应数据
         response_data = []
 
-        # 遍历每个file_name，为其构建classifications字典
+        # 遍历每个file_name，为其构建 classification s字典
         for file_name in file_names:
             data_key_categories = Assessment_Classification.objects.filter(file_name=file_name).values('data_key', 'category')
-            # 使用字典推导式构建classifications字典
+            # 使用字典推导式构建 classifications 字典
             classifications = {item['data_key']: item['category'] for item in data_key_categories}
             
             # 将构建的数据添加到响应列表中
