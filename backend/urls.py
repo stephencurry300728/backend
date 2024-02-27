@@ -55,7 +55,7 @@ urlpatterns = [
     path('api/logout/', LogoutView.as_view(), name='auth_logout'),
     # 上传文件并写入数据库
     path("api/upload-assessment/", AssessmentUploadView.as_view(), name='upload-assessment'),
-    # 保存设置的分类信息
+    # 保存设置完的分类信息
     path('api/save-classification/', SaveClassification.as_view(), name='save-classification'),
     # 获取设置完的分类信息
     path('api/data-categories/', DataKeyCategoryList.as_view(), name='category-list'),
