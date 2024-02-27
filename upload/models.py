@@ -62,6 +62,7 @@ class Assessment_Base(models.Model):
 # 创建关联模型存储分类信息
 class Assessment_Classification(models.Model):
     assessment_base = models.ForeignKey(Assessment_Base, on_delete=models.CASCADE)
+    file_name = models.CharField(max_length=100,verbose_name="文件名",default="default_file")
     data_key = models.CharField(max_length=255, verbose_name="数据键", default='default_key')  # 用于标识additional_data中的操作条目
     category = models.CharField(max_length=50,verbose_name="分类")  # 识故、排故、操作确认之一
 

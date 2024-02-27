@@ -33,8 +33,8 @@ class AssessmentBaseAdmin(admin.ModelAdmin):
 # 创建Assessment_Classification模型的admin类
 class AssessmentClassificationAdmin(admin.ModelAdmin):
     # 可以自定义这个类来满足你的需要，比如定义list_display来显示特定的字段
-    list_display = ('assessment_base', 'data_key','category')
-    list_display_links = ('assessment_base','data_key','category')
+    list_display = ('assessment_base','file_name','data_key','category')
+    list_display_links = ('assessment_base','file_name','data_key','category')
     search_fields = ('assessment_base__file_name','data_key','category')  # 允许通过file_name和category搜索
 
 # 在管理员后台注册模型

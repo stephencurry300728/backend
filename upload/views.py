@@ -306,6 +306,7 @@ class SaveClassification(APIView):
                 # 确保这里的`assessment_base`和`data_key`足以唯一标识一个记录
                 Assessment_Classification.objects.update_or_create(
                     assessment_base=assessment_base,
+                    file_name=file_name,
                     data_key=key,
                     defaults={'category': category}
     )
