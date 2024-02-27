@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import Assessment_Base
+from .models import Assessment_Base, Assessment_Classification
 
 class AssessmentBaseSerializer(serializers.ModelSerializer):
     # 添加一个新的字段trainLines, 这个字段不在模型中定义，而是动态计算得到
@@ -29,3 +29,8 @@ class AssessmentBaseSerializer(serializers.ModelSerializer):
         if obj.train_model and len(obj.train_model) >= 2:
             return obj.train_model[:2]
         return None  # 如果条件不满足，返回None或者一个默认值
+    
+class AssessmentClassificationSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Assessment_Classification
+        fields = '__all__'

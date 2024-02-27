@@ -23,9 +23,7 @@ from rest_framework.documentation import include_docs_urls
 from rest_framework.routers import DefaultRouter
 from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
 
-from upload.views import AssessmentBaseViewSet
-
-from upload.views import UserInfoViewSet,LogoutView,AssessmentUploadView
+from upload.views import UserInfoViewSet,LogoutView,AssessmentBaseViewSet,AssessmentUploadView,SaveClassification
 
 router = DefaultRouter()
 '''
@@ -56,4 +54,6 @@ urlpatterns = [
     path('api/logout/', LogoutView.as_view(), name='auth_logout'),
     # 上传文件并写入数据库
     path("api/upload-assessment/", AssessmentUploadView.as_view(), name='upload-assessment'),
+    # 保存分类信息
+    path('api/save-classification/', SaveClassification.as_view(), name='save-classification'),
 ]

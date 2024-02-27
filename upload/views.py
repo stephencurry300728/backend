@@ -8,6 +8,7 @@ import pandas as pd
 from django.db import transaction
 from django.db.models import Q
 from django_filters.rest_framework import DjangoFilterBackend
+from django.core.exceptions import ObjectDoesNotExist
 from rest_framework import status, viewsets
 from rest_framework.decorators import action
 from rest_framework.filters import OrderingFilter
@@ -17,11 +18,9 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework_simplejwt.tokens import RefreshToken
 
-from .models import Assessment_Base, NewUser
+from .models import NewUser, Assessment_Base, Assessment_Classification
 from .serializers import AssessmentBaseSerializer
 
-
-# Create your views here.
 # 获取当前登录用户信息
 class UserInfoViewSet(viewsets.ViewSet):
     queryset = NewUser.objects.all().order_by('-date_joined')
@@ -150,6 +149,38 @@ class AssessmentBaseViewSet(viewsets.ModelViewSet):
         
         # 返回序列化后的数据
         return Response(serializer.data)
+
+class SaveClassification(APIView):
+    
+    def post(self, request, *args, **kwargs):
+        # 前端发送的数据格式为：
+        # {
+        #   "file_name": "10tsm1.csv",
+        #   "classifications": {
+        #       "整体耗时": "识故",
+        #       "逃生门释放耗时": "排故",
+        #       ...
+        #   }
+        # }
+        file_name = request.data.get('file_name')
+        classifications = request.data.get('classifications')
+
+        # 找到所有具有该file_name的Assessment_Base实例
+        assessment_bases = Assessment_Base.objects.filter(file_name=file_name)
+        if not assessment_bases.exists():
+            return Response({"error": "File name not found."}, status=status.HTTP_404_NOT_FOUND)
+
+        for assessment_base in assessment_bases:
+            # 对于每个找到的Assessment_Base实例，更新或创建Assessment_Classification记录
+            for key, category in classifications.items():
+                # 确保这里的`assessment_base`和`data_key`足以唯一标识一个记录
+                Assessment_Classification.objects.update_or_create(
+                    assessment_base=assessment_base,
+                    data_key=key,
+                    defaults={'category': category}
+    )
+
+        return Response({"status": "success"}, status=status.HTTP_200_OK)
 
 # 定义文件上传并写入数据库的逻辑
 class AssessmentUploadView(APIView):

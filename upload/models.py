@@ -58,3 +58,18 @@ class Assessment_Base(models.Model):
     def __str__(self):
         # 显示车型信息-文件名-姓名
         return f"{self.file_name} - {self.train_model} - {self.name}"
+
+# 创建关联模型存储分类信息
+class Assessment_Classification(models.Model):
+    assessment_base = models.ForeignKey(Assessment_Base, on_delete=models.CASCADE)
+    data_key = models.CharField(max_length=255, verbose_name="数据键", default='default_key')  # 用于标识additional_data中的操作条目
+    category = models.CharField(max_length=50,verbose_name="分类")  # 识故、排故、操作确认之一
+
+    class Meta:
+        verbose_name = "分类信息"
+        verbose_name_plural = verbose_name
+        # 确保不会因为这些字段的组合相同而创建重复的记录
+        unique_together = ('assessment_base', 'data_key')
+
+    def __str__(self):
+        return f"{self.assessment_base.file_name}: {self.category}"

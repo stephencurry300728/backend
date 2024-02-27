@@ -4,9 +4,9 @@ from django.db import models
 from django.forms import TextInput
 from django.utils.translation import gettext_lazy as _
 
-from .models import Assessment_Base,NewUser
+from .models import NewUser,Assessment_Base,Assessment_Classification
 
-# 自定义用户管理界面
+# 创建NewUser模型的admin类
 class NewUserAdmin(UserAdmin):
     fieldsets = (
         (None, {'fields': ('username', 'password')}),
@@ -19,7 +19,7 @@ class NewUserAdmin(UserAdmin):
     list_display_links = ('id','username','roles','email','last_login')
     search_fields = ('username', 'email')
 
-# 自定义评估基类管理界面
+# 创建Assessment_Base模型的admin类
 class AssessmentBaseAdmin(admin.ModelAdmin):
     # 设置整数型字段的输入框大小
     formfield_overrides = {
@@ -30,5 +30,13 @@ class AssessmentBaseAdmin(admin.ModelAdmin):
     list_display_links = ('id','record_date','crew_group','name','train_model','assessment_item','assessment_result','file_name')
     search_fields = ('record_date','crew_group','name','train_model','assessment_item','assessment_result','file_name')
 
+# 创建Assessment_Classification模型的admin类
+class AssessmentClassificationAdmin(admin.ModelAdmin):
+    # 可以自定义这个类来满足你的需要，比如定义list_display来显示特定的字段
+    list_display = ('assessment_base', 'data_key','category')
+    list_display_links = ('assessment_base','data_key','category')
+    search_fields = ('assessment_base__file_name','data_key','category')  # 允许通过file_name和category搜索
+
 admin.site.register(NewUser,NewUserAdmin)
 admin.site.register(Assessment_Base, AssessmentBaseAdmin)
+admin.site.register(Assessment_Classification, AssessmentClassificationAdmin)
