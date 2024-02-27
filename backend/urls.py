@@ -23,7 +23,7 @@ from rest_framework.documentation import include_docs_urls
 from rest_framework.routers import DefaultRouter
 from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
 
-from upload.views import UserInfoViewSet, LogoutView, AssessmentBaseViewSet, AssessmentUploadView, SaveClassification
+from upload.views import UserInfoViewSet, LogoutView, AssessmentBaseViewSet, AssessmentUploadView, SaveClassification, DataKeyCategoryList
 
 router = DefaultRouter()
 '''
@@ -32,10 +32,11 @@ There are two mandatory arguments to the register() method:
 2. viewset - The viewset class.
 3. basename - The base to use for the URL names that are created.
 '''
-# 主路由
-router.register(r'assessment-base', AssessmentBaseViewSet, basename='assessmentbase')
 # 前端路由守卫定义必须有登录的用户才能放行
 router.register(prefix="info", viewset=UserInfoViewSet)
+
+# 主路由
+router.register(r'assessment-base', AssessmentBaseViewSet, basename='assessmentbase')
 
 urlpatterns = [
     # 定义admin路径，连接到Django的管理后台
@@ -54,6 +55,8 @@ urlpatterns = [
     path('api/logout/', LogoutView.as_view(), name='auth_logout'),
     # 上传文件并写入数据库
     path("api/upload-assessment/", AssessmentUploadView.as_view(), name='upload-assessment'),
-    # 保存分类信息
+    # 保存设置的分类信息
     path('api/save-classification/', SaveClassification.as_view(), name='save-classification'),
+    # 获取设置完的分类信息
+    path('api/categories/', DataKeyCategoryList.as_view(), name='category-list'),
 ]

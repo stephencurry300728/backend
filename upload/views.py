@@ -18,7 +18,7 @@ from rest_framework.views import APIView
 from rest_framework_simplejwt.tokens import RefreshToken
 
 from .models import NewUser, Assessment_Base, Assessment_Classification
-from .serializers import AssessmentBaseSerializer
+from .serializers import AssessmentBaseSerializer, AssessmentClassificationSerializer
 
 # 获取当前登录用户信息
 class UserInfoViewSet(viewsets.ViewSet):
@@ -316,3 +316,26 @@ class SaveClassification(APIView):
     )
 
         return Response({"status": "success"}, status=status.HTTP_200_OK)
+    
+class DataKeyCategoryList(APIView):
+    
+    def get(self, request, *args, **kwargs):
+        # 首先获取所有唯一的file_name
+        file_names = Assessment_Classification.objects.values_list('file_name', flat=True).distinct()
+        
+        # 准备最终的响应列表
+        response_data = []
+
+        # 遍历每个file_name，为其构建classifications字典
+        for file_name in file_names:
+            data_key_categories = Assessment_Classification.objects.filter(file_name=file_name).values('data_key', 'category')
+            # 使用字典推导式构建classifications字典
+            classifications = {item['data_key']: item['category'] for item in data_key_categories}
+            
+            # 将构建的数据添加到响应列表中
+            response_data.append({
+                "file_name": file_name,
+                "classifications": classifications
+            })
+        
+        return Response(response_data,status=status.HTTP_200_OK)
