@@ -254,10 +254,12 @@ class AssessmentBaseViewSet(viewsets.ModelViewSet):
         # 如果 train_model_line 为空，即前端的选项框中选取了 所有线路，不添加该条件，从而不限制查询结果
 
         # 构建一个精确匹配 train_model 的车型匹配
+        # 后期这里会做一个多选框的Q匹配
         if train_model:
             query_conditions.append(Q(train_model=train_model))
 
         # 构建一个精确匹配 assessment_item 的考核项目匹配
+        # 后期这里会做一个多选框的Q匹配
         if assessment_item:
             query_conditions.append(Q(assessment_item=assessment_item))
 
