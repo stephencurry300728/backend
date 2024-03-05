@@ -18,7 +18,7 @@ from rest_framework.views import APIView
 from rest_framework_simplejwt.tokens import RefreshToken
 
 from .models import NewUser, Assessment_Base, Assessment_Classification
-from .serializers import AssessmentBaseSerializer, AssessmentClassificationSerializer
+from .serializers import AssessmentBaseSerializer
 
 # 获取当前登录用户信息
 class UserInfoViewSet(viewsets.ViewSet):
