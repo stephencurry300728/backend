@@ -94,8 +94,8 @@ class AssessmentUploadView(APIView):
                         try:
                             io_string = io.StringIO(file_content.decode(encoding))
                             # 后续在这里会判断文件的格式，对于不同的文件格式，需要使用不同的方法来读取文件
-                            # 例如：如果文件是csv格式，使用pd.read_csv方法来读取文件
-                            # 如果文件是excel格式，使用pd.read_excel方法来读取文件
+                            # 例如：如果文件是 csv 格式，使用 pd.read_csv 方法来读取文件
+                            # 如果文件是 excel 格式，使用 pd.read_excel 方法来读取文件
                             df = pd.read_csv(io_string, header=1)
                             break
                         except UnicodeDecodeError:
