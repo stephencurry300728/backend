@@ -201,8 +201,9 @@ class AssessmentBaseViewSet(viewsets.ModelViewSet):
     # 参考文档 https://www.django-rest-framework.org/api-guide/filtering/#orderingfilter
     filter_backends = [OrderingFilter, DjangoFilterBackend]
     # 允许排序的字段
-    ordering_fields = '__all__'  # 允许所有字段可以排序
-    ordering = ['record_date']  # 默认按照记录日期升序排列
+    ordering_fields = '__all__'
+    # 默认按照记录日期升序排列
+    ordering = ['record_date']
     
     # 获取所有不重复的 train_model 和 assessment_item 组合，为前端的 科目 提供选项框
     @action(detail=False, methods=['get'], url_path='all-train-and-assessment')
