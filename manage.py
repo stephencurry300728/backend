@@ -4,8 +4,7 @@ import threading
 import time
 import socket
 import webbrowser
-from django.core.management import execute_from_command_line, call_command
-from django.db.utils import OperationalError
+from django.core.management import execute_from_command_line
 import django
 
 

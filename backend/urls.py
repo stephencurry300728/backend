@@ -16,7 +16,7 @@ Including another URLconf
 """
 from django.contrib import admin
 # from django.shortcuts import redirect
-from django.views.generic import TemplateView
+from django.views.generic import TemplateView, RedirectView
 from django.urls import include, path, re_path
 
 # rest_framework 板块
@@ -43,6 +43,7 @@ router.register(r'assessment-base', AssessmentBaseViewSet,
 urlpatterns = [
     # 定义admin路径，连接到Django的管理后台
     path("admin/", admin.site.urls),
+    re_path(r'^admin$', RedirectView.as_view(url='/admin/', permanent=True)),
     # 接口文档
     # path("docs/", include_docs_urls(title="API文档")),
     # 访问根目录重定向到api文档页面
