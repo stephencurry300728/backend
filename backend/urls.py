@@ -15,11 +15,12 @@ Including another URLconf
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
 from django.contrib import admin
-from django.shortcuts import redirect
+# from django.shortcuts import redirect
+from django.views.generic import TemplateView
 from django.urls import include, path, re_path
 
 # rest_framework 板块
-from rest_framework.documentation import include_docs_urls
+# from rest_framework.documentation import include_docs_urls
 from rest_framework.routers import DefaultRouter
 from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
 
@@ -36,15 +37,16 @@ There are two mandatory arguments to the register() method:
 router.register(prefix="info", viewset=UserInfoViewSet)
 
 # 主路由
-router.register(r'assessment-base', AssessmentBaseViewSet, basename='assessmentbase')
+router.register(r'assessment-base', AssessmentBaseViewSet,
+                basename='assessmentbase')
 
 urlpatterns = [
     # 定义admin路径，连接到Django的管理后台
     path("admin/", admin.site.urls),
     # 接口文档
-    path("docs/", include_docs_urls(title="API文档")),
+    # path("docs/", include_docs_urls(title="API文档")),
     # 访问根目录重定向到api文档页面
-    re_path(r'^$', lambda request: redirect('docs/', permanent=True)),
+    # re_path(r'^$', lambda request: redirect('docs/', permanent=True)),
     # 定义api路径，包含由DRF router自动生成的URLs
     path("api/", include(router.urls)),
     # 定义用于获取 JWT 认证 token ("access")
@@ -54,9 +56,12 @@ urlpatterns = [
     # 用户登出清除token
     path('api/logout/', LogoutView.as_view(), name='auth_logout'),
     # 上传文件并写入数据库
-    path("api/upload-assessment/", AssessmentUploadView.as_view(), name='upload-assessment'),
+    path("api/upload-assessment/", AssessmentUploadView.as_view(),
+         name='upload-assessment'),
     # 保存设置完的分类信息
-    path('api/save-classification/', SaveClassification.as_view(), name='save-classification'),
+    path('api/save-classification/', SaveClassification.as_view(),
+         name='save-classification'),
     # 获取设置完的分类信息
     path('api/data-categories/', DataKeyCategoryList.as_view(), name='category-list'),
+    re_path('.*', TemplateView.as_view(template_name='index.html')),
 ]
