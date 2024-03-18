@@ -37,30 +37,30 @@ def is_port_open(host, port):
         return result == 0
 
 
-def check_migrations_and_apply():
-    """检查并应用数据库迁移"""
-    db_path = 'db.sqlite3'
-    if not os.path.exists(db_path):
-        print("数据库不存在，将执行迁移。")
-        call_command('migrate', interactive=False)
-    else:
-        try:
-            from upload.models import NewUser, Assessment_Base, Assessment_Classification
-            NewUser.objects.exists()
-            Assessment_Base.objects.exists()
-            Assessment_Classification.objects.exists()
-        except OperationalError as e:
-            if 'no such table' in str(e):
-                call_command('migrate', interactive=False)
-                print("数据库迁移已执行。")
-            else:
-                raise
+# def check_migrations_and_apply():
+#     """检查并应用数据库迁移"""
+#     db_path = 'db.sqlite3'
+#     if not os.path.exists(db_path):
+#         print("数据库不存在，将执行迁移。")
+#         call_command('migrate', interactive=False)
+#     else:
+#         try:
+#             from upload.models import NewUser, Assessment_Base, Assessment_Classification
+#             NewUser.objects.exists()
+#             Assessment_Base.objects.exists()
+#             Assessment_Classification.objects.exists()
+#         except OperationalError as e:
+#             if 'no such table' in str(e):
+#                 call_command('migrate', interactive=False)
+#                 print("数据库迁移已执行。")
+#             else:
+#                 raise
 
 
 if __name__ == "__main__":
     os.environ.setdefault("DJANGO_SETTINGS_MODULE", "backend.settings")
     django.setup()
-    check_migrations_and_apply()
+    # check_migrations_and_apply()
 
     if len(sys.argv) == 1:
         port = find_available_port('127.0.0.1', 8000)  # 从8000端口开始寻找可用端口
